@@ -130,8 +130,8 @@ func handleRequest(w http.ResponseWriter, r *http.Request, gcsClient *storage.Cl
 			// Generate a unique object key (timestamp as folder, random hash as name).
 			objectKey := generateObjectKey()
 
-			// Generate a random string of 1024 characters for the payload.
-			randomString := generateRandomString(1024)
+			// Generate a random string of 2048 characters for the payload.
+			randomString := generateRandomString(2048)
 
 			// Create a new object writer.
 			obj := bucket.Object(objectKey).NewWriter(ctx)
