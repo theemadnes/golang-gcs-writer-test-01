@@ -54,7 +54,7 @@ func main() {
 
 	// Replace with your actual bucket name.
 	// You can also use an environment variable: os.Getenv("GCS_BUCKET_NAME")
-	bucketName := os.Getenv("GCS_BUCKET_NAME")
+	bucketName = os.Getenv("GCS_BUCKET_NAME")
 	if bucketName == "" {
 		log.Fatal("GCS_BUCKET_NAME environment variable not set")
 	}
