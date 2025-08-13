@@ -113,10 +113,19 @@ func handleRequest(w http.ResponseWriter, r *http.Request, gcsClient *storage.Cl
 	var wg sync.WaitGroup
 	errs := make(chan error, payload.Number)
 
+	// Create a channel to act as a semaphore, limiting concurrency to 100.
+	concurrencyLimiter := make(chan struct{}, 100)
+
 	for i := 0; i < payload.Number; i++ {
 		wg.Add(1)
+
+		// Wait for a spot in the concurrency limiter.
+		concurrencyLimiter <- struct{}{}
+
 		go func() {
 			defer wg.Done()
+			// Release the spot in the concurrency limiter when the goroutine finishes.
+			defer func() { <-concurrencyLimiter }()
 
 			// Generate a unique object key (timestamp as folder, random hash as name).
 			objectKey := generateObjectKey()
