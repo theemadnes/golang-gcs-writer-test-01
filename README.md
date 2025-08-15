@@ -5,6 +5,6 @@ Usage:
 ```
 curl -X POST \
   -H "Content-Type: application/json" \
-  -d '{"number": 10}' \
+  -d '{"number": 10, "payload_size": 1048576}' \
   http://localhost:8080/
 ```

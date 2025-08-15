@@ -18,7 +18,8 @@ import (
 
 // Payload represents the incoming JSON structure.
 type Payload struct {
-	Number int `json:"number"`
+	Number      int `json:"number"`
+	PayloadSize int `json:"payload_size"`
 }
 
 // ResponsePayload represents the outgoing JSON structure.
@@ -98,6 +99,12 @@ func handleRequest(w http.ResponseWriter, r *http.Request, gcsClient *storage.Cl
 		return
 	}
 
+	// Validate the payload size
+	if payload.PayloadSize <= 0 {
+		http.Error(w, "The 'payload_size' value must be a positive integer", http.StatusBadRequest)
+		return
+	}
+
 	log.Printf("Received request to create %d objects in bucket '%s'", payload.Number, bucketName)
 
 	// Get a reference to the GCS bucket.
@@ -106,6 +113,9 @@ func handleRequest(w http.ResponseWriter, r *http.Request, gcsClient *storage.Cl
 	// Use a context with a timeout for GCS operations.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
 	defer cancel()
+
+	// Create the payload - this will be the same object data for all objects.
+	randomString := generateRandomString(payload.PayloadSize)
 
 	// Start timing the GCS write operations.
 	startTime := time.Now()
@@ -129,9 +139,6 @@ func handleRequest(w http.ResponseWriter, r *http.Request, gcsClient *storage.Cl
 
 			// Generate a unique object key (timestamp as folder, random hash as name).
 			objectKey := generateObjectKey()
-
-			// Generate a random string of 2048 characters for the payload.
-			randomString := generateRandomString(2048)
 
 			// Create a new object writer.
 			obj := bucket.Object(objectKey).NewWriter(ctx)
